@@ -1,0 +1,1 @@
+[Sun May 31 17:43:27.021026 2015] [core:error] [pid 4229] (13)Permission denied: [client 127.0.0.1:53176] AH00132: file permissions deny server access: /Users/jaimemac/work/predictive-dashboard/web/rssfeed/lib/jquery.rss.js, referer: http://rssfeed.site/

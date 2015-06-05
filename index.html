@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+    <style>
+
+
+        body
+        {
+            margin: 0;
+        }
+
+
+        #header
+        {
+            height: 50px;
+            background: lightskyblue;
+        }
+
+        #footer
+        {
+            background: #ddd;
+            height: 50px;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+        }
+
+        #content
+        {
+            margin: 0 auto;
+            width: 1300px;
+        }
+
+
+        #content .stories img
+        {
+            width: 300px;
+            border: 1px solid #bbb;
+        }
+
+        #content .stories p
+        {
+            text-align: left !important;
+        }
+
+        #content .stories
+        {
+            float: left;
+            width: 300px;
+            margin: 0 20px 0 0;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+
+        google.load("feeds", "1");
+
+        function formatContent(sContent)
+        {
+
+            sFind = $(sContent);
+            sFound = $("img", sFind).attr("src");
+
+            console.log(sFound);
+        }
+
+
+        function initialize() {
+            var feed = new google.feeds.Feed("http://www.engadget.com/tag/features/rss.xml");
+            feed.setResultFormat(google.feeds.Feed.JSON_FORMAT);
+
+            feed.load(function(result) {
+                if (!result.error) {
+
+                    for (var i = 0; i < result.feed.entries.length; i++) {
+                        var entry = result.feed.entries[i];
+
+
+                        var $stories                = $("<div class='stories' id='story_" + i + "'></div>");
+                        //var $img                    = $("<div class='image-holder'></div>");
+                        var $title                  = $("<div class='title'></div>");
+                        var $content                = $("<div class='content'></div>");
+
+
+                        //$stories.append($img);
+                        $stories.append($title);
+                        $stories.append($content);
+                        $("#content").append($stories);
+
+
+
+                        //$("#content #story_" + i + " .image-holder").html(formatContent(entry.content));
+                        $("#content #story_" + i + " .title").text(entry.title);
+                        $("#content #story_" + i + " .content").html(entry.content);
+                        //$("#content").append("<div>" + formatContent(entry.content) + "</div>");
+
+                    }
+
+
+                }
+            });
+        }
+        google.setOnLoadCallback(initialize);
+
+    </script>
+
+</head>
+<body>
+<div id="header"></div>
+<div id="content"></div>
+<div id="footer"></div>
+</body>
+</html>
+
+
+
