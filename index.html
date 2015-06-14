@@ -6,6 +6,15 @@
     <script src="/lib/masonry/masonry.pkgd.min.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Mallanna:400,700' rel='stylesheet' type='text/css'>
 
+    <link rel="stylesheet" href="/lib/bootstrap-3.3.4-dist/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="/lib/bootstrap-3.3.4-dist/css/bootstrap-theme.min.css">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="/lib/bootstrap-3.3.4-dist/js/bootstrap.min.js"></script>
+
+
     <style>
 
 
@@ -19,8 +28,12 @@
         #header
         {
             height: 60px;
+            width: 100%;
             background: lightskyblue;
-            margin: 0 0 20px 0;
+            margin: 0;
+            position: fixed;
+            z-index: 10;
+            top: 0;
         }
 
         #footer
@@ -30,74 +43,111 @@
             width: 100%;
             position: fixed;
             bottom: 0;
+            z-index: 10;
         }
 
         #content
         {
-            margin-bottom: 80px;;
+            margin-top: 60px;
+            margin-bottom: 60px;
         }
 
-
-        #content .stories .title
-        {
-            width: 280px;
-            margin: 5px 10px;
-            font-weight: bold;
-            line-height: 18px;;
-        }
-
-
-        #content .stories img
-        {
-            width: 300px !important;
-            height: auto !important;
-            border-top: 1px solid #ddd;
-            border-bottom: 1px solid #ddd;
-        }
-
-        #content .stories p
-        {
-            text-align: left !important;
-            font-size: 13px;
-            line-height: 16px;
-        }
-
-        #content .stories p:nth-child(n+2)
-        {
-            width: 280px;
-            margin: 10px 10px;
-        }
 
         #content .stories
         {
             float: left;
             width: 300px;
-            margin: 0 0px 20px 20px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
+            margin: 0;
+            line-height: 0;
+            overflow: hidden;
+            cursor: pointer;
         }
+
+        #content .stories img
+        {
+            width: 300px;
+            height: auto;
+        }
+
+
+        #content .stories .titleHolder
+        {
+            width: 300px;
+            height: 50px;
+            position: absolute;
+            bottom: 0px;
+        }
+
+
+        #content .stories .titleBg
+        {
+            width: 300px;
+            height: 50px;
+            position: absolute;
+            bottom: 0;
+            background: #000;
+            opacity: .7;
+        }
+
+        #content .stories .title
+        {
+            font-size: .8em;
+            width: 280px;
+            height: 50px;
+            padding: 10px;
+            line-height: 16px;
+            color: #fff;
+            z-index: 1;
+            position: absolute;
+        }
+
+
+        .modal-body
+        {
+            padding: 0;
+        }
+
+        .modal-body img
+        {
+            width: 598px !important;
+            height: auto !important;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .modal-body p:nth-child(n+2)
+        {
+            width: 578px;
+            margin: 10px 10px;
+        }
+
+
 
     </style>
 
     <script type="text/javascript">
 
-
         google.load("feeds", "1");
 
-        function formatContent(sContent)
+        var arrayStory = [];
+
+        function showStory(id)
         {
+            $('#myModal').modal('show');
 
-            sFind = $(sContent);
-            sFound = $("img", sFind).attr("src");
+            $(".modal-title").text(arrayStory[id].title);
+            $(".modal-body").html(arrayStory[id].content);
 
-            console.log(sFound);
         }
 
 
         function initialize() {
             var feed = new google.feeds.Feed("http://mobile.engadget.com/rss.xml");
             feed.setResultFormat(google.feeds.Feed.JSON_FORMAT);
-            feed.setNumEntries(20);
+            feed.setNumEntries(100);
+
+
+
+
 
             feed.load(function(result) {
                 if (!result.error) {
@@ -105,35 +155,45 @@
                     for (var i = 0; i < result.feed.entries.length; i++) {
                         var entry = result.feed.entries[i];
 
+                        arrayStory.push(entry);
 
-                        var $stories                = $("<div class='stories' id='story_" + i + "'></div>");
-                        //var $img                    = $("<div class='image-holder'></div>");
+                        var $stories                = $("<div class='stories' id='story_" + i + "' onclick='showStory(" + i + ")'></div>");
+                        var $titleHolder            = $("<div class='titleHolder'></div>");
+                        var $titleBg                = $("<div class='titleBg'></div>");
                         var $title                  = $("<div class='title'></div>");
-                        var $content                = $("<div class='content'></div>");
+                        var $img                    = $("<div class='img-holder'></div>");
 
 
-                        //$stories.append($img);
-                        $stories.append($title);
-                        $stories.append($content);
+                        $stories.append($img);
+                        $titleHolder.append($title);
+                        $titleHolder.append($titleBg);
+
+                        $stories.append($titleHolder);
+
                         $("#content").append($stories);
 
 
+                        $contentData        = $(entry.content);
+                        $imgsrc             = $contentData.find("a:nth-child(1)").html();
 
-                        //$("#content #story_" + i + " .image-holder").html(formatContent(entry.content));
-                        $("#content #story_" + i + " .title").text(entry.title);
-                        $("#content #story_" + i + " .content").html(entry.content);
-                        //$("#content").append("<div>" + formatContent(entry.content) + "</div>");
+
+                        $("#content #story_" + i + " .img-holder").html($imgsrc);
+                        $("#content #story_" + i + " .titleHolder .title").html(entry.title);
+
+
 
                     }
 
+                    $(document).ready(function(){
+                        $('img').load(function() {
+                            $('#content').masonry({
+                                // options
+                                itemSelector: '.stories',
+                                columnWidth: 0
+                            });
 
-                    $('#content').masonry({
-                        // options
-                        itemSelector: '.stories',
-                        columnWidth: 10
+                        });
                     });
-
-
                 }
             });
         }
@@ -147,6 +207,27 @@
 </div>
 <div id="content"></div>
 <div id="footer"></div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel"></h4>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 </body>
 </html>
 
